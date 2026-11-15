@@ -7,18 +7,20 @@
 #include <iostream>
 #include <string>
 
+using namespace std;
+
 int main() {
     int n;
-    std::cin >> n;
+    cin >> n;
     MyHashTable best;
     for (int i = 0; i < n; ++i) {
         long long w, h;
-        std::cin >> w >> h;
-        std::string key = std::to_string(w), cur;
-        if (!best.get(key, cur) || std::stoll(cur) < h) best.insert(key, std::to_string(h));
+        cin >> w >> h;
+        string key = to_string(w), cur;
+        if (!best.get(key, cur) || stoll(cur) < h) best.insert(key, to_string(h));
     }
     long long total = 0;
-    for (auto& v : best.values()) total += std::stoll(v);
-    std::cout << total << std::endl;
+    for (auto& v : best.values()) total += stoll(v);
+    cout << total << endl;
     return 0;
 }

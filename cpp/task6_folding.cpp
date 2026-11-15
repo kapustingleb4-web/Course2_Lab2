@@ -6,30 +6,32 @@
 #include <iostream>
 #include <string>
 
-bool isNumber(const std::string& s) {
+using namespace std;
+
+bool isNumber(const string& s) {
     if (s.empty()) return false;
     for (char c : s) if (c < '0' || c > '9') return false;
     return true;
 }
 
-unsigned long long fold(const std::string& key, std::string& expr) {
+unsigned long long fold(const string& key, string& expr) {
     unsigned long long sum = 0;
     expr.clear();
     bool digits = isNumber(key);
     for (size_t i = 0; i < key.size(); i += 3) {
-        std::string part = key.substr(i, 3);
+        string part = key.substr(i, 3);
         unsigned long long v = 0;
-        if (digits) v = std::stoull(part);
+        if (digits) v = stoull(part);
         else for (unsigned char c : part) v = v * 256 + c;
         sum += v;
         if (!expr.empty()) expr += "+";
-        expr += digits ? part : std::to_string(v);
+        expr += digits ? part : to_string(v);
     }
     return sum;
 }
 
-unsigned long long foldHash(const std::string& key) {
-    std::string expr;
+unsigned long long foldHash(const string& key) {
+    string expr;
     return fold(key, expr);
 }
 
@@ -37,18 +39,18 @@ int main() {
     const int tableSize = 11;
     ChainHashTable table(tableSize, foldHash, false);  // свёртка - хеш-функция таблицы из 6.1
 
-    std::cout << "Введите ключи через пробел (Ctrl+D - конец):" << std::endl;
-    std::string key;
-    while (std::cin >> key) {
-        std::string expr;
+    cout << "Введите ключи через пробел (Ctrl+D - конец):" << endl;
+    string key;
+    while (cin >> key) {
+        string expr;
         unsigned long long h = fold(key, expr);
-        std::cout << "Ввод: " << key << std::endl;
-        std::cout << "Вывод: " << expr << " = " << h << "." << std::endl;
-        std::cout << "  индекс в таблице размера " << tableSize << ": " << h << " mod " << tableSize
-                  << " = " << table.index(key) << std::endl;
-        table.insert(key, std::to_string(h));
+        cout << "Ввод: " << key << endl;
+        cout << "Вывод: " << expr << " = " << h << "." << endl;
+        cout << "  индекс в таблице размера " << tableSize << ": " << h << " mod " << tableSize
+                  << " = " << table.index(key) << endl;
+        table.insert(key, to_string(h));
     }
-    std::cout << std::endl << "Хеш-таблица (метод цепочек + свёртка):" << std::endl;
+    cout << endl << "Хеш-таблица (метод цепочек + свёртка):" << endl;
     table.print();
     return 0;
 }

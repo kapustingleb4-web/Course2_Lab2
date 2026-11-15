@@ -8,48 +8,50 @@
 #include <string>
 #include <vector>
 
-using Clock = std::chrono::steady_clock;
+using namespace std;
+
+using Clock = chrono::steady_clock;
 
 double nsPerOp(Clock::time_point a, Clock::time_point b, int n) {
-    return (double)std::chrono::duration_cast<std::chrono::nanoseconds>(b - a).count() / n;
+    return (double)chrono::duration_cast<chrono::nanoseconds>(b - a).count() / n;
 }
 
 void demo() {
-    std::cout << "=== Демонстрация (маленькие таблицы) ===" << std::endl;
+    cout << "=== Демонстрация (маленькие таблицы) ===" << endl;
     ChainHashTable chain(5, hashDjb2, false);
     CuckooHashTable cuckoo(5);
-    std::vector<std::string> keys = {"apple", "banana", "cherry", "date", "elder", "fig", "grape"};
+    vector<string> keys = {"apple", "banana", "cherry", "date", "elder", "fig", "grape"};
     for (auto& k : keys) {
-        chain.insert(k, std::to_string(k.size()));
-        cuckoo.insert(k, std::to_string(k.size()));
+        chain.insert(k, to_string(k.size()));
+        cuckoo.insert(k, to_string(k.size()));
     }
-    std::cout << "Метод цепочек (5 корзин, без расширения):" << std::endl;
+    cout << "Метод цепочек (5 корзин, без расширения):" << endl;
     chain.print();
-    std::cout << "Кукушка (две таблицы по " << cuckoo.getCapacity() << ", вытеснений: " << cuckoo.kicks
-              << ", перестроений: " << cuckoo.rehashes << "):" << std::endl;
+    cout << "Кукушка (две таблицы по " << cuckoo.getCapacity() << ", вытеснений: " << cuckoo.kicks
+              << ", перестроений: " << cuckoo.rehashes << "):" << endl;
     cuckoo.print();
-    std::string v;
-    std::cout << "find(cherry): chain=" << (chain.find("cherry", v) ? v : "нет")
-              << ", cuckoo=" << (cuckoo.find("cherry", v) ? v : "нет") << std::endl;
+    string v;
+    cout << "find(cherry): chain=" << (chain.find("cherry", v) ? v : "нет")
+              << ", cuckoo=" << (cuckoo.find("cherry", v) ? v : "нет") << endl;
     chain.remove("cherry");
     cuckoo.remove("cherry");
-    std::cout << "после remove(cherry): chain=" << (chain.find("cherry", v) ? "есть" : "нет")
-              << ", cuckoo=" << (cuckoo.find("cherry", v) ? "есть" : "нет") << std::endl << std::endl;
+    cout << "после remove(cherry): chain=" << (chain.find("cherry", v) ? "есть" : "нет")
+              << ", cuckoo=" << (cuckoo.find("cherry", v) ? "есть" : "нет") << endl << endl;
 }
 
 void analysis() {
-    std::cout << "=== Эмпирический анализ (время в нс на операцию) ===" << std::endl;
-    std::cout << std::left << std::setw(9) << "N" << std::setw(9) << "метод" << std::right
-              << std::setw(9) << "insert" << std::setw(9) << "find+" << std::setw(9) << "find-"
-              << std::setw(9) << "remove" << "   структура" << std::endl;
-    std::mt19937_64 rng(42);
+    cout << "=== Эмпирический анализ (время в нс на операцию) ===" << endl;
+    cout << left << setw(9) << "N" << setw(9) << "метод" << right
+              << setw(9) << "insert" << setw(9) << "find+" << setw(9) << "find-"
+              << setw(9) << "remove" << "   структура" << endl;
+    mt19937_64 rng(42);
     for (int n : {1000, 10000, 100000}) {
-        std::vector<std::string> in(n), out(n);
+        vector<string> in(n), out(n);
         for (int i = 0; i < n; ++i) {
-            in[i] = "key" + std::to_string(rng());
-            out[i] = "miss" + std::to_string(rng());
+            in[i] = "key" + to_string(rng());
+            out[i] = "miss" + to_string(rng());
         }
-        std::string v;
+        string v;
         {
             ChainHashTable t;
             auto a = Clock::now();
@@ -63,9 +65,9 @@ void analysis() {
             t.stats(mx, avg, em);
             for (auto& k : in) t.remove(k);
             auto e = Clock::now();
-            std::cout << std::left << std::setw(9) << n << std::setw(9) << "chain" << std::right << std::fixed << std::setprecision(1)
-                      << std::setw(9) << nsPerOp(a, b, n) << std::setw(9) << nsPerOp(b, c, n) << std::setw(9) << nsPerOp(c, d, n)
-                      << std::setw(9) << nsPerOp(d, e, n) << "   max цепочка=" << mx << ", ср. цепочка=" << std::setprecision(2) << avg << std::endl;
+            cout << left << setw(9) << n << setw(9) << "chain" << right << fixed << setprecision(1)
+                      << setw(9) << nsPerOp(a, b, n) << setw(9) << nsPerOp(b, c, n) << setw(9) << nsPerOp(c, d, n)
+                      << setw(9) << nsPerOp(d, e, n) << "   max цепочка=" << mx << ", ср. цепочка=" << setprecision(2) << avg << endl;
         }
         {
             CuckooHashTable t;
@@ -80,10 +82,10 @@ void analysis() {
             int rh = t.rehashes;
             for (auto& k : in) t.remove(k);
             auto e = Clock::now();
-            std::cout << std::left << std::setw(9) << n << std::setw(9) << "cuckoo" << std::right << std::fixed << std::setprecision(1)
-                      << std::setw(9) << nsPerOp(a, b, n) << std::setw(9) << nsPerOp(b, c, n) << std::setw(9) << nsPerOp(c, d, n)
-                      << std::setw(9) << nsPerOp(d, e, n) << "   вытеснений/вставку=" << std::setprecision(2) << (double)kicks / n
-                      << ", перестроений=" << rh << std::endl;
+            cout << left << setw(9) << n << setw(9) << "cuckoo" << right << fixed << setprecision(1)
+                      << setw(9) << nsPerOp(a, b, n) << setw(9) << nsPerOp(b, c, n) << setw(9) << nsPerOp(c, d, n)
+                      << setw(9) << nsPerOp(d, e, n) << "   вытеснений/вставку=" << setprecision(2) << (double)kicks / n
+                      << ", перестроений=" << rh << endl;
         }
     }
 }

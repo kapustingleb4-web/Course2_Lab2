@@ -2,13 +2,15 @@
 #include <iostream>
 #include <utility>
 
-unsigned long long hashDjb2(const std::string& s) {
+using namespace std;
+
+unsigned long long hashDjb2(const string& s) {
     unsigned long long h = 5381;
     for (unsigned char c : s) h = h * 33 + c;
     return h;
 }
 
-unsigned long long hashFnv(const std::string& s, unsigned long long seed) {
+unsigned long long hashFnv(const string& s, unsigned long long seed) {
     unsigned long long h = 1469598103934665603ULL ^ seed;
     for (unsigned char c : s) {
         h ^= c;
@@ -36,7 +38,7 @@ ChainHashTable::~ChainHashTable() {
     delete[] buckets;
 }
 
-int ChainHashTable::index(const std::string& key) const { return func(key) % capacity; }
+int ChainHashTable::index(const string& key) const { return func(key) % capacity; }
 
 void ChainHashTable::rehash() {
     Node** old = buckets;
@@ -57,7 +59,7 @@ void ChainHashTable::rehash() {
     delete[] old;
 }
 
-void ChainHashTable::insert(const std::string& key, const std::string& value) {
+void ChainHashTable::insert(const string& key, const string& value) {
     int idx = index(key);
     for (Node* cur = buckets[idx]; cur; cur = cur->next)
         if (cur->key == key) { cur->value = value; return; }
@@ -66,13 +68,13 @@ void ChainHashTable::insert(const std::string& key, const std::string& value) {
     if (autoResize && size > capacity) rehash();
 }
 
-bool ChainHashTable::find(const std::string& key, std::string& out) const {
+bool ChainHashTable::find(const string& key, string& out) const {
     for (Node* cur = buckets[index(key)]; cur; cur = cur->next)
         if (cur->key == key) { out = cur->value; return true; }
     return false;
 }
 
-bool ChainHashTable::remove(const std::string& key) {
+bool ChainHashTable::remove(const string& key) {
     int idx = index(key);
     Node* cur = buckets[idx];
     Node* prev = nullptr;
@@ -103,9 +105,9 @@ void ChainHashTable::stats(int& maxChain, double& avgChain, int& empty) const {
 
 void ChainHashTable::print() const {
     for (int i = 0; i < capacity; ++i) {
-        std::cout << "[" << i << "]";
-        for (Node* cur = buckets[i]; cur; cur = cur->next) std::cout << " -> (" << cur->key << ": " << cur->value << ")";
-        std::cout << std::endl;
+        cout << "[" << i << "]";
+        for (Node* cur = buckets[i]; cur; cur = cur->next) cout << " -> (" << cur->key << ": " << cur->value << ")";
+        cout << endl;
     }
 }
 
@@ -120,15 +122,15 @@ CuckooHashTable::~CuckooHashTable() {
     delete[] t2;
 }
 
-int CuckooHashTable::h1(const std::string& key) const {
+int CuckooHashTable::h1(const string& key) const {
     unsigned long long h = hashDjb2(key) ^ (seed * 0x2545F4914F6CDD1DULL);
     h ^= h >> 31;
     return h % capacity;
 }
 
-int CuckooHashTable::h2(const std::string& key) const { return hashFnv(key, seed) % capacity; }
+int CuckooHashTable::h2(const string& key) const { return hashFnv(key, seed) % capacity; }
 
-bool CuckooHashTable::find(const std::string& key, std::string& out) const {
+bool CuckooHashTable::find(const string& key, string& out) const {
     const Slot& a = t1[h1(key)];
     if (a.used && a.key == key) { out = a.value; return true; }
     const Slot& b = t2[h2(key)];
@@ -138,19 +140,19 @@ bool CuckooHashTable::find(const std::string& key, std::string& out) const {
 
 // Кладём элемент; если место занято - вытесняем жильца в его другую таблицу.
 // Если цепочка вытеснений слишком длинная (цикл), возвращаем false.
-bool CuckooHashTable::place(std::string& key, std::string& value) {
+bool CuckooHashTable::place(string& key, string& value) {
     int maxLoop = 32;
     for (int c = capacity; c > 1; c /= 2) maxLoop++;
     for (int i = 0; i < maxLoop; ++i) {
         Slot& a = t1[h1(key)];
         if (!a.used) { a.key = key; a.value = value; a.used = true; return true; }
-        std::swap(key, a.key);
-        std::swap(value, a.value);
+        swap(key, a.key);
+        swap(value, a.value);
         kicks++;
         Slot& b = t2[h2(key)];
         if (!b.used) { b.key = key; b.value = value; b.used = true; return true; }
-        std::swap(key, b.key);
-        std::swap(value, b.value);
+        swap(key, b.key);
+        swap(value, b.value);
         kicks++;
     }
     return false;
@@ -172,7 +174,7 @@ void CuckooHashTable::rehash(int newCap) {
         for (int i = 0; i < oldCap && ok; ++i) {
             for (Slot* s : {&o1[i], &o2[i]}) {
                 if (!s->used) continue;
-                std::string k = s->key, v = s->value;
+                string k = s->key, v = s->value;
                 if (!place(k, v)) { ok = false; break; }
                 size++;
             }
@@ -186,20 +188,20 @@ void CuckooHashTable::rehash(int newCap) {
     delete[] o2;
 }
 
-void CuckooHashTable::insert(const std::string& key, const std::string& value) {
+void CuckooHashTable::insert(const string& key, const string& value) {
     Slot& a = t1[h1(key)];
     if (a.used && a.key == key) { a.value = value; return; }
     Slot& b = t2[h2(key)];
     if (b.used && b.key == key) { b.value = value; return; }
     if ((size + 1) * 2 > capacity) rehash(capacity * 2);  // держим заполнение <= 50%
-    std::string k = key, v = value;
+    string k = key, v = value;
     while (!place(k, v)) {
         rehash(capacity);  // не удалось - новые функции, вставляем выпавший элемент снова
     }
     size++;
 }
 
-bool CuckooHashTable::remove(const std::string& key) {
+bool CuckooHashTable::remove(const string& key) {
     Slot& a = t1[h1(key)];
     if (a.used && a.key == key) { a.used = false; size--; return true; }
     Slot& b = t2[h2(key)];
@@ -209,7 +211,7 @@ bool CuckooHashTable::remove(const std::string& key) {
 
 void CuckooHashTable::print() const {
     for (int i = 0; i < capacity; ++i) {
-        std::cout << "[" << i << "]  T1: " << (t1[i].used ? t1[i].key + "=" + t1[i].value : "-")
-                  << "   T2: " << (t2[i].used ? t2[i].key + "=" + t2[i].value : "-") << std::endl;
+        cout << "[" << i << "]  T1: " << (t1[i].used ? t1[i].key + "=" + t1[i].value : "-")
+                  << "   T2: " << (t2[i].used ? t2[i].key + "=" + t2[i].value : "-") << endl;
     }
 }

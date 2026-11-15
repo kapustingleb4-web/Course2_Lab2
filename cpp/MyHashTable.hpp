@@ -4,21 +4,23 @@
 #include <vector>
 #include <iostream>
 
+using namespace std;
+
 // Хеш-таблица (метод цепочек), ключ и значение - строки.
 // Используется в заданиях 2, 3, 4 (множество, пирамида).
 class MyHashTable {
 private:
     struct Node {
-        std::string key;
-        std::string value;
+        string key;
+        string value;
         Node* next;
-        Node(const std::string& k, const std::string& v) : key(k), value(v), next(nullptr) {}
+        Node(const string& k, const string& v) : key(k), value(v), next(nullptr) {}
     };
     Node** buckets;
     int capacity;
     int size;
 
-    int hash(const std::string& key) const;
+    int hash(const string& key) const;
     void rehash();
 
 public:
@@ -27,14 +29,14 @@ public:
     MyHashTable(const MyHashTable& other);
     MyHashTable& operator=(const MyHashTable& other);
 
-    void insert(const std::string& key, const std::string& value);
-    bool get(const std::string& key, std::string& out) const;
-    bool contains(const std::string& key) const;
-    bool remove(const std::string& key);
+    void insert(const string& key, const string& value);
+    bool get(const string& key, string& out) const;
+    bool contains(const string& key) const;
+    bool remove(const string& key);
     int getSize() const;
     void print() const;
 
-    std::vector<std::string> keys() const;
-    std::vector<std::string> values() const;
+    vector<string> keys() const;
+    vector<string> values() const;
 };
 #endif

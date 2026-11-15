@@ -1,5 +1,7 @@
 #include "MyHashTable.hpp"
 
+using namespace std;
+
 MyHashTable::MyHashTable(int cap) : capacity(cap < 1 ? 1 : cap), size(0) {
     buckets = new Node*[capacity];
     for (int i = 0; i < capacity; ++i) buckets[i] = nullptr;
@@ -27,14 +29,14 @@ MyHashTable::MyHashTable(const MyHashTable& other) : capacity(other.capacity), s
 MyHashTable& MyHashTable::operator=(const MyHashTable& other) {
     if (this == &other) return *this;
     MyHashTable tmp(other);
-    std::swap(buckets, tmp.buckets);
-    std::swap(capacity, tmp.capacity);
-    std::swap(size, tmp.size);
+    swap(buckets, tmp.buckets);
+    swap(capacity, tmp.capacity);
+    swap(size, tmp.size);
     return *this;
 }
 
 // djb2: h = h * 33 + c, затем остаток от деления на размер таблицы
-int MyHashTable::hash(const std::string& key) const {
+int MyHashTable::hash(const string& key) const {
     unsigned long long h = 5381;
     for (unsigned char c : key) h = h * 33 + c;
     return static_cast<int>(h % capacity);
@@ -59,7 +61,7 @@ void MyHashTable::rehash() {
     delete[] old;
 }
 
-void MyHashTable::insert(const std::string& key, const std::string& value) {
+void MyHashTable::insert(const string& key, const string& value) {
     int idx = hash(key);
     for (Node* cur = buckets[idx]; cur; cur = cur->next) {
         if (cur->key == key) { cur->value = value; return; }
@@ -71,19 +73,19 @@ void MyHashTable::insert(const std::string& key, const std::string& value) {
     if (size * 4 > capacity * 3) rehash();  // коэффициент заполнения > 0.75
 }
 
-bool MyHashTable::get(const std::string& key, std::string& out) const {
+bool MyHashTable::get(const string& key, string& out) const {
     for (Node* cur = buckets[hash(key)]; cur; cur = cur->next) {
         if (cur->key == key) { out = cur->value; return true; }
     }
     return false;
 }
 
-bool MyHashTable::contains(const std::string& key) const {
-    std::string tmp;
+bool MyHashTable::contains(const string& key) const {
+    string tmp;
     return get(key, tmp);
 }
 
-bool MyHashTable::remove(const std::string& key) {
+bool MyHashTable::remove(const string& key) {
     int idx = hash(key);
     Node* cur = buckets[idx];
     Node* prev = nullptr;
@@ -103,21 +105,21 @@ bool MyHashTable::remove(const std::string& key) {
 int MyHashTable::getSize() const { return size; }
 
 void MyHashTable::print() const {
-    std::cout << "{ ";
+    cout << "{ ";
     for (int i = 0; i < capacity; ++i)
-        for (Node* cur = buckets[i]; cur; cur = cur->next) std::cout << cur->key << ":" << cur->value << " ";
-    std::cout << "}";
+        for (Node* cur = buckets[i]; cur; cur = cur->next) cout << cur->key << ":" << cur->value << " ";
+    cout << "}";
 }
 
-std::vector<std::string> MyHashTable::keys() const {
-    std::vector<std::string> res;
+vector<string> MyHashTable::keys() const {
+    vector<string> res;
     for (int i = 0; i < capacity; ++i)
         for (Node* cur = buckets[i]; cur; cur = cur->next) res.push_back(cur->key);
     return res;
 }
 
-std::vector<std::string> MyHashTable::values() const {
-    std::vector<std::string> res;
+vector<string> MyHashTable::values() const {
+    vector<string> res;
     for (int i = 0; i < capacity; ++i)
         for (Node* cur = buckets[i]; cur; cur = cur->next) res.push_back(cur->value);
     return res;

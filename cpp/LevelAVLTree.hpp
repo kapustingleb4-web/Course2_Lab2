@@ -2,6 +2,8 @@
 #define LEVELAVLTREE_HPP
 #include <vector>
 
+using namespace std;
+
 // АВЛ-дерево как в ЛР1, но с методом getLevels() - значения узлов по уровням (обход в ширину).
 // В классе AVLTree из ЛР1 корень и узлы закрыты (private), поэтому для задания 5 дерево
 // с доступом к уровням сделано отдельным классом.
@@ -33,7 +35,7 @@ public:
     LevelAVLTree& operator=(const LevelAVLTree&) = delete;
 
     void insert(int key);
-    std::vector<std::vector<int>> getLevels() const;
+    vector<vector<int>> getLevels() const;
     void printTree() const;
 };
 #endif

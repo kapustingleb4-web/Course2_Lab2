@@ -2,6 +2,8 @@
 #include <algorithm>
 #include <iostream>
 
+using namespace std;
+
 LevelAVLTree::LevelAVLTree() : root(nullptr) {}
 LevelAVLTree::~LevelAVLTree() { clear(root); }
 
@@ -16,7 +18,7 @@ int LevelAVLTree::height(Node* n) const { return n ? n->height : 0; }
 
 int LevelAVLTree::getBalance(Node* n) const { return n ? height(n->left) - height(n->right) : 0; }
 
-void LevelAVLTree::updateHeight(Node* n) { n->height = 1 + std::max(height(n->left), height(n->right)); }
+void LevelAVLTree::updateHeight(Node* n) { n->height = 1 + max(height(n->left), height(n->right)); }
 
 LevelAVLTree::Node* LevelAVLTree::rightRotate(Node* y) {
     Node* x = y->left;
@@ -61,12 +63,12 @@ LevelAVLTree::Node* LevelAVLTree::insert(Node* n, int key) {
 void LevelAVLTree::insert(int key) { root = insert(root, key); }
 
 // Обход в ширину: берём текущий уровень, собираем детей в следующий уровень
-std::vector<std::vector<int>> LevelAVLTree::getLevels() const {
-    std::vector<std::vector<int>> res;
-    std::vector<Node*> level;
+vector<vector<int>> LevelAVLTree::getLevels() const {
+    vector<vector<int>> res;
+    vector<Node*> level;
     if (root) level.push_back(root);
     while (!level.empty()) {
-        std::vector<Node*> next;
+        vector<Node*> next;
         res.emplace_back();
         for (Node* n : level) {
             res.back().push_back(n->key);
@@ -82,13 +84,13 @@ void LevelAVLTree::printTreeRec(Node* n, int space) const {
     if (!n) return;
     space += 5;
     printTreeRec(n->right, space);
-    std::cout << std::endl;
-    for (int i = 5; i < space; ++i) std::cout << " ";
-    std::cout << n->key;
+    cout << endl;
+    for (int i = 5; i < space; ++i) cout << " ";
+    cout << n->key;
     printTreeRec(n->left, space);
 }
 
 void LevelAVLTree::printTree() const {
     printTreeRec(root, 0);
-    std::cout << std::endl;
+    cout << endl;
 }

@@ -9,6 +9,8 @@
 #include <string>
 #include <unordered_map>
 
+using namespace std;
+
 class LFUCache {
 private:
     struct Node {
@@ -37,8 +39,8 @@ private:
 
     int capacity;
     int minFreq = 0;
-    std::unordered_map<int, Node*> keys;
-    std::unordered_map<int, FreqList> freqs;
+    unordered_map<int, Node*> keys;
+    unordered_map<int, FreqList> freqs;
 
     void touch(Node* n) {  // обращение: переносим узел в список freq+1
         freqs[n->freq].remove(n);
@@ -81,23 +83,23 @@ public:
 // Ввод: cap Q, затем Q запросов "SET x y" / "GET x"
 int main() {
     int cap, q;
-    std::cout << "Введите cap и Q, затем запросы:" << std::endl;
-    std::cin >> cap >> q;
+    cout << "Введите cap и Q, затем запросы:" << endl;
+    cin >> cap >> q;
     LFUCache cache(cap);
-    std::string out;
+    string out;
     for (int i = 0; i < q; ++i) {
-        std::string cmd;
-        std::cin >> cmd;
+        string cmd;
+        cin >> cmd;
         if (cmd == "SET") {
             int x, y;
-            std::cin >> x >> y;
+            cin >> x >> y;
             cache.set(x, y);
         } else if (cmd == "GET") {
             int x;
-            std::cin >> x;
-            out += (out.empty() ? "" : " ") + std::to_string(cache.get(x));
+            cin >> x;
+            out += (out.empty() ? "" : " ") + to_string(cache.get(x));
         }
     }
-    std::cout << "Вывод: " << out << std::endl;
+    cout << "Вывод: " << out << endl;
     return 0;
 }

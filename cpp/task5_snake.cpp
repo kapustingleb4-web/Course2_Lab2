@@ -4,26 +4,28 @@
 #include "LevelAVLTree.hpp"
 #include <iostream>
 
+using namespace std;
+
 int main() {
     LevelAVLTree tree;
     int x;
-    std::cout << "Введите числа (0 - конец ввода): ";
-    while (std::cin >> x && x != 0) tree.insert(x);
+    cout << "Введите числа (0 - конец ввода): ";
+    while (cin >> x && x != 0) tree.insert(x);
 
-    std::cout << "Дерево:";
+    cout << "Дерево:";
     tree.printTree();
 
-    std::cout << "Змейка: ";
+    cout << "Змейка: ";
     bool leftToRight = true, first = true;
     for (auto& level : tree.getLevels()) {
         int n = level.size();
         for (int i = 0; i < n; ++i) {
             int v = leftToRight ? level[i] : level[n - 1 - i];
-            std::cout << (first ? "" : " - ") << v;
+            cout << (first ? "" : " - ") << v;
             first = false;
         }
         leftToRight = !leftToRight;
     }
-    std::cout << std::endl;
+    cout << endl;
     return 0;
 }

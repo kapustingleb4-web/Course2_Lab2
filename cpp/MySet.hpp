@@ -2,17 +2,19 @@
 #define MYSET_HPP
 #include "MyHashTable.hpp"
 
+using namespace std;
+
 // АТД "Множество" на основе хеш-таблицы: элемент хранится как ключ.
 class MySet {
 private:
     MyHashTable table;
 
 public:
-    bool add(const std::string& val);       // false, если уже есть
-    bool remove(const std::string& val);    // false, если нет
-    bool contains(const std::string& val) const;
+    bool add(const string& val);       // false, если уже есть
+    bool remove(const string& val);    // false, если нет
+    bool contains(const string& val) const;
     int getSize() const;
     void print() const;
-    std::vector<std::string> getData() const;
+    vector<string> getData() const;
 };
 #endif
