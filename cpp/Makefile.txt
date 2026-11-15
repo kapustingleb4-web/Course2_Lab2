@@ -1,0 +1,41 @@
+CXX = g++
+LAB1 = ../../lab1/cpp
+CXXFLAGS = -std=c++17 -Wall -O2 -I. -I$(LAB1)
+
+TARGETS = brackets set intersections pyramid snake hash_analysis folding lfu
+
+all: $(TARGETS)
+
+# Задание 1: стек из ЛР1
+brackets: task1_brackets.cpp $(LAB1)/MyStack.cpp $(LAB1)/MyArray.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Задание 2: множество на хеш-таблице, хранение в JSON (json.hpp из ЛР1)
+set: task2_set.cpp MySet.cpp MyHashTable.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Задание 3: массив из ЛР1 + множество
+intersections: task3_intersections.cpp MySet.cpp MyHashTable.cpp $(LAB1)/MyArray.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Задание 4: хеш-таблица
+pyramid: task4_pyramid.cpp MyHashTable.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Задание 5: АВЛ-дерево с обходом по уровням
+snake: task5_snake.cpp LevelAVLTree.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Задание 6.1 и 6.2: метод цепочек, кукушка, свёртка
+hash_analysis: task6_analysis.cpp HashTables.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+folding: task6_folding.cpp HashTables.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+# Задание 7: LFU-кэш
+lfu: task7_lfu.cpp
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+clean:
+	rm -f $(TARGETS) sets.json
